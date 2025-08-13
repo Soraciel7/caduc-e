@@ -1,7 +1,163 @@
-cd pet-tag-app
-git init
-git add .
-git commit -m "Initial commit - Pet Tag App"
-git branch -M main
-git remote add origin https://github.com/TON-UTILISATEUR/pet-tag-app.git
-git push -u origin main
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pet Tag App</title>
+    <!-- Basic CSP for static hosting; adjust if you add third-parties -->
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self';
+                   script-src 'self';
+                   style-src 'self' 'unsafe-inline';
+                   img-src 'self' data: https:;
+                   font-src 'self' data: https:;
+                   connect-src 'self';
+                   frame-ancestors 'none';
+                   base-uri 'self';
+                   form-action 'self';
+                   upgrade-insecure-requests;">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="Referrer-Policy" content="no-referrer-when-downgrade">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ctext y='14' font-size='14'%3E🐾%3C/text%3E%3C/svg%3E">
+  </head>
+  <body class="bg-gray-50">
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+
+[[headers]]
+for = "/*"
+[headers.values]
+Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
+X-Content-Type-Options = "nosniff"
+X-Frame-Options = "DENY"
+Referrer-Policy = "no-referrer-when-downgrade"
+Permissions-Policy = "geolocation=(), microphone=(), camera=(), usb=(), payment=()"
+X-XSS-Protection = "0"
+
+{
+  "name": "pet-tag-app",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "deploy:gh": "vite build && gh-pages -d dist"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "lucide-react": "^0.424.0",
+    "qrcode": "^1.5.3"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.41",
+    "tailwindcss": "^3.4.10",
+    "vite": "^5.4.2",
+    "gh-pages": "^6.1.1"
+  }
+}
+export default {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+
+# Pet Tag App (QR/NFC) — React + Vite + Tailwind
+
+MVP d'application pour médailles d’animaux : profils, QR codes, écriture Web NFC (Chrome Android), mode perdu, relais de messages (local).
+
+## Démarrage local
+```bash
+npm install
+npm run dev
+```
+
+## Déploiement — Vercel (recommandé)
+1. Poussez ce repo sur GitHub.
+2. Sur vercel.com, **Add New Project** → choisissez ce repo → Deploy.
+3. Optionnel : les headers de sécurité sont définis dans `vercel.json`.
+
+## Déploiement — GitHub Pages
+- Si vous déployez sur `https://USER.github.io/pet-tag-app`, mettez `base: '/pet-tag-app/'` dans `vite.config.js` puis :
+```bash
+npm run build
+npm run deploy:gh
+```
+
+## Déploiement — Netlify
+- Build command: `npm run build`
+- Publish directory: `dist`
+- Les headers de sécurité sont dans `netlify.toml`.
+
+## Web NFC
+- Compatible **Chrome sur Android** (site servi en **HTTPS**).
+- iOS Safari ne prend pas en charge l'écriture Web NFC : utilisez une app tierce (NFC Tools, TagWriter) ou Raccourcis.
+- Bouton **Écrire NFC** dans la carte du profil animal.
+
+## Sécurité (front)
+- Pas de secrets dans le client.
+- CSP de base en `<meta http-equiv="Content-Security-Policy">` et headers via Vercel/Netlify.
+- Par défaut, les coordonnées du propriétaire sont masquées sur le profil public.
+- Sauvegarde locale (`localStorage`) uniquement pour la démo : ne mettez pas d'informations sensibles.
+
+## À faire pour prod
+- Backend (Supabase/Firebase) + RLS + vraie page publique `/p/:tagId`.
+- Service d’email/SMS (Postmark/Twilio).
+- Suivi des scans, consentement, suppression de compte.
+
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ['./index.html', './src/**/*.{js,jsx,ts,tsx}'],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+
+{
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer-when-downgrade"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "geolocation=(), microphone=(), camera=(), usb=(), payment=()"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "0"
+        }
+      ]
+    }
+  ]
+}
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+// Change `base` to '/pet-tag-app/' if deploying to GitHub Pages under that repo name.
+export default defineConfig({
+  plugins: [react()],
+  base: '/'
+})
